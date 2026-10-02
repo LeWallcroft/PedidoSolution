@@ -5,6 +5,9 @@ namespace Pedidos.Api.Services;
 public sealed class PedidoService
 {
     private const decimal DescuentoVip = 0.10m;
+    private const decimal DescuentoMayoristaAlto = 0.20m;
+    private const decimal DescuentoMayoristaBase = 0.05m;
+    private const decimal UmbralMayorista = 500m;
 
     public decimal CalcularSubtotal(IEnumerable<Producto> productos)
     {
@@ -19,7 +22,7 @@ public sealed class PedidoService
         return cliente.Tipo switch
         {
             TipoCliente.Vip => subtotal * DescuentoVip,
-            TipoCliente.Mayorista => subtotal > 500m ? subtotal * 0.20m : subtotal * 0.05m,
+            TipoCliente.Mayorista => subtotal * (subtotal > UmbralMayorista ? DescuentoMayoristaAlto : DescuentoMayoristaBase),
             _ => 0m
         };
     }
