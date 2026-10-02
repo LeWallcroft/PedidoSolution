@@ -1,41 +1,38 @@
-var builder = WebApplication.CreateBuilder(args);
+using Pedidos.Api.Domain;
+using Pedidos.Api.Repositories;
+using Pedidos.Api.Services;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<PedidoService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+app.MapPost("/pedidos", (Pedido entrada, PedidoService servicio) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    try
+    {
+        var pedido = servicio.CrearPedido(entrada.Cliente, entrada.Productos);
+        return Results.Created($"/pedidos/{pedido.Id}", pedido);
+    }
+    catch (ArgumentOutOfRangeException exception)
+    {
+        return Results.BadRequest(new { error = exception.Message });
+    }
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/pedidos/{id:guid}", (Guid id, PedidoService servicio) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var pedido = servicio.ObtenerPedido(id);
+    return pedido is null ? Results.NotFound() : Results.Ok(pedido);
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+public partial class Program { }
