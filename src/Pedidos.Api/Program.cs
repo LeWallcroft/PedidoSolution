@@ -14,6 +14,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapPost("/pedidos", (Pedido entrada, PedidoService servicio) =>
 {
     try

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedidos | Tienda</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: #172033; background: #f3f6fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 40px 18px; }
+    main { max-width: 820px; margin: 0 auto; }
+    header { margin-bottom: 24px; }
+    .eyebrow { color: #3567d6; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 8px 0; font-size: clamp(2rem, 5vw, 2.8rem); }
+    header p { margin: 0; color: #5d687c; }
+    .card { margin: 18px 0; padding: 24px; border: 1px solid #e0e6f0; border-radius: 16px; background: white; box-shadow: 0 8px 28px #1720330b; }
+    h2 { margin: 0 0 18px; font-size: 1.2rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    label { display: grid; gap: 7px; color: #4c5870; font-size: .9rem; font-weight: 600; }
+    input, select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #ccd5e3; border-radius: 9px; background: white; color: #172033; font: inherit; }
+    input:focus, select:focus { outline: 3px solid #3567d626; border-color: #3567d6; }
+    button { min-height: 44px; margin-top: 18px; padding: 0 18px; border: 0; border-radius: 9px; background: #2859c5; color: white; font: inherit; font-weight: 700; cursor: pointer; }
+    button:hover { background: #1d48a5; }
+    .lookup { display: flex; gap: 10px; align-items: end; }
+    .lookup label { flex: 1; }
+    .lookup button { margin: 0; white-space: nowrap; }
+    #message { min-height: 24px; margin: 12px 0 0; color: #40506b; }
+    pre { overflow: auto; margin: 16px 0 0; padding: 16px; border-radius: 10px; background: #101a2d; color: #dce8ff; font-size: .86rem; line-height: 1.5; }
+    .hint { margin: 12px 0 0; color: #69758a; font-size: .85rem; }
+    @media (max-width: 560px) { body { padding: 24px 14px; } .card { padding: 19px; } .fields { grid-template-columns: 1fr; } .lookup { align-items: stretch; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Tienda · Gestión</div>
+      <h1>Módulo de pedidos</h1>
+      <p>Crea un pedido y consulta sus cálculos desde la API.</p>
+    </header>
+
+    <section class="card" aria-labelledby="create-title">
+      <h2 id="create-title">Crear pedido</h2>
+      <form id="create-form">
+        <div class="fields">
+          <label for="tipo">Tipo de cliente
+            <select id="tipo" name="tipo">
+              <option value="0">Regular · 0 %</option>
+              <option value="1">VIP · 10 %</option>
+              <option value="2">Mayorista · 5 % o 20 %</option>
+            </select>
+          </label>
+          <label for="precio">Precio del producto
+            <input id="precio" name="precio" type="number" min="0" step="0.01" value="100" required>
+          </label>
+          <label for="cantidad">Cantidad
+            <input id="cantidad" name="cantidad" type="number" min="0" step="1" value="2" required>
+          </label>
+        </div>
+        <button type="submit">Crear pedido</button>
+      </form>
+      <p id="message" role="status" aria-live="polite"></p>
+      <pre id="created-result" hidden></pre>
+    </section>
+
+    <section class="card" aria-labelledby="lookup-title">
+      <h2 id="lookup-title">Consultar pedido</h2>
+      <form id="lookup-form" class="lookup">
+        <label for="pedido-id">Identificador del pedido
+          <input id="pedido-id" name="id" type="text" placeholder="Pega aquí el ID devuelto al crear" required>
+        </label>
+        <button type="submit">Buscar</button>
+      </form>
+      <pre id="lookup-result" hidden></pre>
+      <p class="hint">Los pedidos se guardan en memoria y se borran al detener la API.</p>
+    </section>
+  </main>
+
+  <script>
+    const createForm = document.querySelector("#create-form");
+    const message = document.querySelector("#message");
+    const createdResult = document.querySelector("#created-result");
+    const lookupForm = document.querySelector("#lookup-form");
+    const lookupResult = document.querySelector("#lookup-result");
+
+    createForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "Enviando pedido…";
+      createdResult.hidden = true;
+      const form = new FormData(createForm);
+      const pedido = {
+        cliente: { tipo: Number(form.get("tipo")) },
+        productos: [{ precio: Number(form.get("precio")), cantidad: Number(form.get("cantidad")) }]
+      };
+      try {
+        const response = await fetch("/pedidos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(pedido)
+        });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error ?? `Error HTTP ${response.status}`);
+        document.querySelector("#pedido-id").value = body.id;
+        createdResult.textContent = JSON.stringify(body, null, 2);
+        createdResult.hidden = false;
+        message.textContent = "Pedido creado. Su identificador también está listo para consultar.";
+      } catch (error) {
+        message.textContent = `No se pudo crear el pedido: ${error.message}`;
+      }
+    });
+
+    lookupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      lookupResult.hidden = true;
+      const id = document.querySelector("#pedido-id").value.trim();
+      try {
+        const response = await fetch(`/pedidos/${encodeURIComponent(id)}`);
+        if (response.status === 404) throw new Error("No se encontró un pedido con ese identificador.");
+        if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+        const pedido = await response.json();
+        lookupResult.textContent = JSON.stringify(pedido, null, 2);
+        lookupResult.hidden = false;
+      } catch (error) {
+        lookupResult.textContent = error.message;
+        lookupResult.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
