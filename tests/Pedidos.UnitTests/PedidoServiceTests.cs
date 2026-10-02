@@ -52,4 +52,31 @@ public class PedidoServiceTests
         // Assert
         Assert.Equal(20m, descuento);
     }
+
+    [Fact]
+    public void test_descuento_cliente_regular()
+    {
+        // Arrange
+        var service = new PedidoService();
+        var cliente = new Cliente { Tipo = TipoCliente.Regular };
+        // Act
+        var descuento = service.CalcularDescuento(cliente, 200m);
+        // Assert
+        Assert.Equal(0m, descuento);
+    }
+
+    [Theory]
+    [InlineData(600, 120)]
+    [InlineData(500, 25)]
+    [InlineData(400, 20)]
+    public void test_descuento_mayorista_segun_monto(decimal subtotal, decimal esperado)
+    {
+        // Arrange
+        var service = new PedidoService();
+        var cliente = new Cliente { Tipo = TipoCliente.Mayorista };
+        // Act
+        var descuento = service.CalcularDescuento(cliente, subtotal);
+        // Assert
+        Assert.Equal(esperado, descuento);
+    }
 }
