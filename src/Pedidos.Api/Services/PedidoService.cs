@@ -4,6 +4,7 @@ namespace Pedidos.Api.Services;
 
 public sealed class PedidoService
 {
+    private const decimal TasaImpuesto = 0.18m;
     private const decimal DescuentoVip = 0.10m;
     private const decimal DescuentoMayoristaAlto = 0.20m;
     private const decimal DescuentoMayoristaBase = 0.05m;
@@ -27,7 +28,7 @@ public sealed class PedidoService
         };
     }
 
-    public decimal CalcularImpuesto(decimal montoConDescuento) => montoConDescuento * 0.18m;
+    public decimal CalcularImpuesto(decimal montoConDescuento) => montoConDescuento * TasaImpuesto;
 
     public decimal CalcularTotal(decimal montoConDescuento, decimal impuesto) => montoConDescuento + impuesto;
 
