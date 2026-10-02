@@ -1,5 +1,6 @@
 using Pedidos.Api.Domain;
 using Pedidos.Api.Services;
+using Moq;
 
 namespace Pedidos.UnitTests;
 
@@ -93,23 +94,21 @@ public class PedidoServiceTests
         Assert.Equal(16.20m, impuesto);
         Assert.Equal(106.20m, total);
     }
-}
+
     [Fact]
     public void test_crear_pedido_persiste_el_pedido_con_identificador()
     {
         // Arrange
-        var repositorio = new Moq.Mock<Pedidos.Api.Repositories.IPedidoRepository>();
+        var repositorio = new Mock<IPedidoRepository>();
         var service = new PedidoService(repositorio.Object);
         var cliente = new Cliente { Tipo = TipoCliente.Regular };
         var productos = new[] { new Producto { Precio = 50m, Cantidad = 2 } };
-
         // Act
         var pedido = service.CrearPedido(cliente, productos);
-
         // Assert
         Assert.NotEqual(Guid.Empty, pedido.Id);
         Assert.Equal(100m, pedido.Subtotal);
-        repositorio.Verify(r => r.Guardar(It.Is<Pedidos.Api.Domain.Pedido>(p => p.Id == pedido.Id)), Moq.Times.Once);
+        repositorio.Verify(r => r.Guardar(It.Is<Pedido>(p => p.Id == pedido.Id)), Times.Once);
     }
 
     [Fact]
@@ -117,17 +116,13 @@ public class PedidoServiceTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var pedidoEsperado = new Pedidos.Api.Domain.Pedido { Id = id };
-        var repositorio = new Moq.Mock<Pedidos.Api.Repositories.IPedidoRepository>();
+        var pedidoEsperado = new Pedido { Id = id };
+        var repositorio = new Mock<IPedidoRepository>();
         repositorio.Setup(r => r.ObtenerPorId(id)).Returns(pedidoEsperado);
         var service = new PedidoService(repositorio.Object);
-
         // Act
         var pedido = service.ObtenerPedido(id);
-
         // Assert
         Assert.Same(pedidoEsperado, pedido);
     }
-
 }
-
