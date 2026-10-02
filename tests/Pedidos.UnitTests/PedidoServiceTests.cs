@@ -45,9 +45,10 @@ public class PedidoServiceTests
         var productos = new[] { new Producto { Precio = 10m, Cantidad = -1 } };
 
         // Act
-        var action = () => service.CalcularSubtotal(productos);
+        Action action = () => { service.CalcularSubtotal(productos); };
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(action);
     }
 }
+
