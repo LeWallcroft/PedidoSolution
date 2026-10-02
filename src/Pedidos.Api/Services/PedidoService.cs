@@ -27,6 +27,10 @@ public sealed class PedidoService
         };
     }
 
+    public decimal CalcularImpuesto(decimal montoConDescuento) => montoConDescuento * 0.18m;
+
+    public decimal CalcularTotal(decimal montoConDescuento, decimal impuesto) => montoConDescuento + impuesto;
+
     private static void ValidarCantidades(IEnumerable<Producto> productos)
     {
         if (productos.Any(producto => producto.Cantidad < 0))
