@@ -79,4 +79,18 @@ public class PedidoServiceTests
         // Assert
         Assert.Equal(esperado, descuento);
     }
+
+    [Fact]
+    public void test_calcular_impuesto_y_total()
+    {
+        // Arrange
+        var service = new PedidoService();
+        var montoConDescuento = 90m;
+        // Act
+        var impuesto = service.CalcularImpuesto(montoConDescuento);
+        var total = service.CalcularTotal(montoConDescuento, impuesto);
+        // Assert
+        Assert.Equal(16.20m, impuesto);
+        Assert.Equal(106.20m, total);
+    }
 }
