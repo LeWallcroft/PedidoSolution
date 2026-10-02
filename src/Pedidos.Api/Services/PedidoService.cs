@@ -11,6 +11,11 @@ public sealed class PedidoService
         return productos.Sum(producto => producto.Precio * producto.Cantidad);
     }
 
+    public decimal CalcularDescuento(Cliente cliente, decimal subtotal)
+    {
+        return cliente.Tipo == TipoCliente.Vip ? subtotal * 0.10m : 0m;
+    }
+
     private static void ValidarCantidades(IEnumerable<Producto> productos)
     {
         if (productos.Any(producto => producto.Cantidad < 0))
