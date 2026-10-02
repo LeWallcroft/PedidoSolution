@@ -4,6 +4,8 @@ namespace Pedidos.Api.Services;
 
 public sealed class PedidoService
 {
+    private const decimal DescuentoVip = 0.10m;
+
     public decimal CalcularSubtotal(IEnumerable<Producto> productos)
     {
         ArgumentNullException.ThrowIfNull(productos);
@@ -13,7 +15,8 @@ public sealed class PedidoService
 
     public decimal CalcularDescuento(Cliente cliente, decimal subtotal)
     {
-        return cliente.Tipo == TipoCliente.Vip ? subtotal * 0.10m : 0m;
+        ArgumentNullException.ThrowIfNull(cliente);
+        return cliente.Tipo == TipoCliente.Vip ? subtotal * DescuentoVip : 0m;
     }
 
     private static void ValidarCantidades(IEnumerable<Producto> productos)
