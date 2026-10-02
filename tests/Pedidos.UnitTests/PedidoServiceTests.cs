@@ -1,5 +1,6 @@
 using Pedidos.Api.Domain;
 using Pedidos.Api.Services;
+using Pedidos.Api.Repositories;
 using Moq;
 
 namespace Pedidos.UnitTests;
@@ -126,3 +127,4 @@ public class PedidoServiceTests
         Assert.Same(pedidoEsperado, pedido);
     }
 }
+
