@@ -183,7 +183,7 @@ git log --oneline
 | 4. Descuento mayorista y límite 500 | `e918f8c` | `a13a7de` | `68072c6` |
 | 5. Impuesto y total | `9e76004` | `d8bba07` | `8bdd500` |
 
-Nota de trazabilidad: la refactorización del ciclo 1 generalizó el subtotal a varios productos antes de escribir la prueba dedicada del ciclo 2. Por ello, esa parte de la prueba de productos ya pasaba al iniciar el ciclo 2; el RED verificable del segundo ciclo fue el caso de cantidad negativa, que falló por no lanzar la excepción. También hubo que corregir la forma de la aserción en `3dbb9fc`; `e754bf4` conserva la prueba corregida antes de la implementación. El historial no se reescribió.
+Nota de trazabilidad: la refactorización del ciclo 1 generalizó el subtotal a varios productos antes de escribir la prueba dedicada del ciclo 2. Por ello, esa parte de la prueba de productos ya pasaba al iniciar el ciclo 2; el RED verificable del segundo ciclo fue el caso de cantidad negativa, que falló por no lanzar la excepción. También hubo que corregir la forma de la aserción en `3dbb9fc`; `e754bf4` conserva la prueba corregida antes de la implementación. Durante las pruebas adicionales de persistencia, los commits `a430692`, `e3e3266` y `14ebda5` registran correcciones sucesivas de ubicación/sintaxis de las pruebas antes de que compilaran; la primera corrida válida produjo errores de compilación por las interfaces todavía ausentes, y `02ad9bc` contiene la implementación que las hizo pasar. El historial no se reescribió.
 
 ## Decisiones de diseño
 
@@ -210,3 +210,4 @@ Nota de trazabilidad: la refactorización del ciclo 1 generalizó el subtotal a 
 10. El script reunió restauración, compilación, pruebas unitarias, integración y cobertura en una misma ejecución repetible.
 11. xUnit permitió expresar casos simples con `Fact` y varias fronteras de descuento con `Theory` e `InlineData`.
 12. La salida de cobertura también me llevó a distinguir el código propio del código generado por OpenAPI al interpretar el porcentaje.
+
