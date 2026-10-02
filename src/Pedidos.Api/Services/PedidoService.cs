@@ -16,7 +16,12 @@ public sealed class PedidoService
     public decimal CalcularDescuento(Cliente cliente, decimal subtotal)
     {
         ArgumentNullException.ThrowIfNull(cliente);
-        return cliente.Tipo == TipoCliente.Vip ? subtotal * DescuentoVip : 0m;
+        return cliente.Tipo switch
+        {
+            TipoCliente.Vip => subtotal * DescuentoVip,
+            TipoCliente.Mayorista => subtotal > 500m ? subtotal * 0.20m : subtotal * 0.05m,
+            _ => 0m
+        };
     }
 
     private static void ValidarCantidades(IEnumerable<Producto> productos)
