@@ -128,3 +128,6 @@ public class PedidoServiceTests
         // Assert
         Assert.Same(pedidoEsperado, pedido);
     }
+
+}
+
