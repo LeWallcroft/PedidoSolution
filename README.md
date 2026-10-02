@@ -70,8 +70,4 @@ Estas pruebas envían solicitudes HTTP a la API y usan el servicio y el reposito
 
 Se ejecutaron 4 casos de integración.
 
-## Métricas de cobertura obtenidas
 
-En la última ejecución de `run-tests.ps1` se generaron reportes Cobertura para las pruebas unitarias y de integración. Al combinar las líneas del código propio de `Pedidos.Api`, sin contar dos veces las líneas cubiertas por ambos tipos de pruebas y excluyendo el código generado por OpenAPI, se cubrieron **77 de 82 líneas (93,90 %)**.
-
-Los archivos `coverage.cobertura.xml` están dentro de `TestResults/Unit/` y `TestResults/Integration/`.
