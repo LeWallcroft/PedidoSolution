@@ -480,3 +480,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# .NET build and test artifacts
+**/bin/
+**/obj/
+TestResults/
