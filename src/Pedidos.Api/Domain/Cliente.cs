@@ -9,5 +9,6 @@ public enum TipoCliente
 
 public sealed class Cliente
 {
+    public Guid Id { get; init; }
     public TipoCliente Tipo { get; init; }
 }

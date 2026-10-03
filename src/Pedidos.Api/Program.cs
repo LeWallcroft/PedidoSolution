@@ -4,10 +4,15 @@ using Pedidos.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<IPedidoRepository, PedidoRepository>();
+builder.Services.AddSingleton<IPedidoRepository>(services =>
+    new PedidoRepository(services.GetRequiredService<IConfiguration>().GetConnectionString("Pedidos")
+        ?? throw new InvalidOperationException("Configure ConnectionStrings:Pedidos para SQL Server.")));
 builder.Services.AddScoped<PedidoService>();
 
 var app = builder.Build();
+var connectionString = app.Configuration.GetConnectionString("Pedidos")
+    ?? throw new InvalidOperationException("Configure ConnectionStrings:Pedidos para SQL Server.");
+SqlDatabaseInitializer.Initialize(connectionString);
 
 if (app.Environment.IsDevelopment())
 {

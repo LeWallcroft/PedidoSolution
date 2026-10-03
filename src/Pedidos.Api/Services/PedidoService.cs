@@ -41,15 +41,23 @@ public sealed class PedidoService
     public Pedido CrearPedido(Cliente cliente, IEnumerable<Producto> productos)
     {
         ArgumentNullException.ThrowIfNull(cliente);
-        var listaProductos = productos.ToList();
+        ArgumentNullException.ThrowIfNull(productos);
+        var clientePersistido = new Cliente { Id = Guid.NewGuid(), Tipo = cliente.Tipo };
+        var listaProductos = productos.Select(producto => new Producto
+        {
+            Id = Guid.NewGuid(),
+            Nombre = producto.Nombre,
+            Precio = producto.Precio,
+            Cantidad = producto.Cantidad
+        }).ToList();
         var subtotal = CalcularSubtotal(listaProductos);
-        var descuento = CalcularDescuento(cliente, subtotal);
+        var descuento = CalcularDescuento(clientePersistido, subtotal);
         var montoConDescuento = subtotal - descuento;
         var impuesto = CalcularImpuesto(montoConDescuento);
         var pedido = new Pedido
         {
             Id = Guid.NewGuid(),
-            Cliente = cliente,
+            Cliente = clientePersistido,
             Productos = listaProductos,
             Subtotal = subtotal,
             Descuento = descuento,

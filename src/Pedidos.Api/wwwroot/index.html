@@ -49,6 +49,9 @@
               <option value="2">Mayorista · 5 % o 20 %</option>
             </select>
           </label>
+          <label for="nombre">Nombre del producto
+            <input id="nombre" name="nombre" type="text" maxlength="120" value="Producto" required>
+          </label>
           <label for="precio">Precio del producto
             <input id="precio" name="precio" type="number" min="0" step="0.01" value="100" required>
           </label>
@@ -71,7 +74,7 @@
         <button type="submit">Buscar</button>
       </form>
       <pre id="lookup-result" hidden></pre>
-      <p class="hint">Los pedidos se guardan en memoria y se borran al detener la API.</p>
+      <p class="hint">Los pedidos se guardan en SQL Server y se conservan al reiniciar la API.</p>
     </section>
   </main>
 
@@ -89,7 +92,7 @@
       const form = new FormData(createForm);
       const pedido = {
         cliente: { tipo: Number(form.get("tipo")) },
-        productos: [{ precio: Number(form.get("precio")), cantidad: Number(form.get("cantidad")) }]
+        productos: [{ nombre: String(form.get("nombre")), precio: Number(form.get("precio")), cantidad: Number(form.get("cantidad")) }]
       };
       try {
         const response = await fetch("/pedidos", {
