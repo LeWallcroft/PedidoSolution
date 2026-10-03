@@ -32,6 +32,22 @@ public class PedidoServiceTests
     }
 
     [Fact]
+    public void test_cantidad_cero_no_cambia_el_subtotal()
+    {
+        // Arrange
+        var service = new PedidoService();
+        var productos = new[]
+        {
+            new Producto { Precio = 10m, Cantidad = 2 },
+            new Producto { Precio = 50m, Cantidad = 0 }
+        };
+        // Act
+        var subtotal = service.CalcularSubtotal(productos);
+        // Assert
+        Assert.Equal(20m, subtotal);
+    }
+
+    [Fact]
     public void test_cantidad_negativa_debe_ser_rechazada()
     {
         // Arrange
@@ -87,11 +103,16 @@ public class PedidoServiceTests
     {
         // Arrange
         var service = new PedidoService();
-        var montoConDescuento = 90m;
+        var cliente = new Cliente { Tipo = TipoCliente.Vip };
+        var subtotal = 100m;
         // Act
+        var descuento = service.CalcularDescuento(cliente, subtotal);
+        var montoConDescuento = subtotal - descuento;
         var impuesto = service.CalcularImpuesto(montoConDescuento);
         var total = service.CalcularTotal(montoConDescuento, impuesto);
         // Assert
+        Assert.Equal(10m, descuento);
+        Assert.Equal(90m, montoConDescuento);
         Assert.Equal(16.20m, impuesto);
         Assert.Equal(106.20m, total);
     }
@@ -108,6 +129,8 @@ public class PedidoServiceTests
         var pedido = service.CrearPedido(cliente, productos);
         // Assert
         Assert.NotEqual(Guid.Empty, pedido.Id);
+        Assert.NotEqual(Guid.Empty, pedido.Cliente.Id);
+        Assert.NotEqual(Guid.Empty, Assert.Single(pedido.Productos).Id);
         Assert.Equal(100m, pedido.Subtotal);
         repositorio.Verify(r => r.Guardar(It.Is<Pedido>(p => p.Id == pedido.Id)), Times.Once);
     }
