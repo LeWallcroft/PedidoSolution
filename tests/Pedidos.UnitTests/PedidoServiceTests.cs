@@ -59,35 +59,39 @@ public class PedidoServiceTests
         Assert.Throws<ArgumentOutOfRangeException>(action);
     }
 
-    [Fact]
-    public void test_descuento_cliente_vip()
+    [Theory]
+    [InlineData(200, 20)]
+    [InlineData(0, 0)]
+    public void test_cliente_vip_recibe_diez_por_ciento_del_subtotal(decimal subtotal, decimal esperado)
     {
         // Arrange
         var service = new PedidoService();
         var cliente = new Cliente { Tipo = TipoCliente.Vip };
         // Act
-        var descuento = service.CalcularDescuento(cliente, 200m);
+        var descuento = service.CalcularDescuento(cliente, subtotal);
         // Assert
-        Assert.Equal(20m, descuento);
+        Assert.Equal(esperado, descuento);
     }
 
-    [Fact]
-    public void test_descuento_cliente_regular()
+    [Theory]
+    [InlineData(200, 0)]
+    [InlineData(0, 0)]
+    public void test_cliente_regular_no_recibe_descuento(decimal subtotal, decimal esperado)
     {
         // Arrange
         var service = new PedidoService();
         var cliente = new Cliente { Tipo = TipoCliente.Regular };
         // Act
-        var descuento = service.CalcularDescuento(cliente, 200m);
+        var descuento = service.CalcularDescuento(cliente, subtotal);
         // Assert
-        Assert.Equal(0m, descuento);
+        Assert.Equal(esperado, descuento);
     }
 
     [Theory]
     [InlineData(600, 120)]
     [InlineData(500, 25)]
     [InlineData(400, 20)]
-    public void test_descuento_mayorista_segun_monto(decimal subtotal, decimal esperado)
+    public void test_mayorista_recibe_veinte_por_ciento_solo_si_supera_500(decimal subtotal, decimal esperado)
     {
         // Arrange
         var service = new PedidoService();
@@ -99,7 +103,7 @@ public class PedidoServiceTests
     }
 
     [Fact]
-    public void test_calcular_impuesto_y_total()
+    public void test_impuesto_es_dieciocho_por_ciento_del_monto_descontado_y_se_suma_al_total()
     {
         // Arrange
         var service = new PedidoService();
@@ -115,6 +119,22 @@ public class PedidoServiceTests
         Assert.Equal(90m, montoConDescuento);
         Assert.Equal(16.20m, impuesto);
         Assert.Equal(106.20m, total);
+    }
+
+    [Fact]
+    public void test_monto_descontado_cero_produce_impuesto_y_total_cero()
+    {
+        // Arrange
+        var service = new PedidoService();
+        var montoConDescuento = 0m;
+
+        // Act
+        var impuesto = service.CalcularImpuesto(montoConDescuento);
+        var total = service.CalcularTotal(montoConDescuento, impuesto);
+
+        // Assert
+        Assert.Equal(0m, impuesto);
+        Assert.Equal(0m, total);
     }
 
     [Fact]
@@ -136,7 +156,7 @@ public class PedidoServiceTests
     }
 
     [Fact]
-    public void test_recuperar_pedido_por_identificador()
+    public void test_recuperar_pedido_devuelve_resultado_del_repositorio_para_el_id()
     {
         // Arrange
         var id = Guid.NewGuid();

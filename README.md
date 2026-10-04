@@ -62,9 +62,10 @@ Las pruebas de `PedidoServiceTests.cs` aíslan los cálculos. En creación y con
 | Cliente VIP | Descuento 10 %. |
 | Cliente Mayorista | Sobre 500 aplica 20 %; en 500 o menos aplica 5 %. |
 | Impuesto y total | Se aplica 18 % después del descuento. |
+| Subtotal o monto descontado en cero | Regular y VIP no reciben descuento; el impuesto y el total son 0. |
 | Crear y recuperar | Se genera un ID y se llama al repositorio según corresponda. |
 
-Se ejecutaron **12 casos unitarios**, contando las tres entradas de la prueba mayorista.
+Se ejecutaron **15 casos unitarios**, contando las entradas de las pruebas parametrizadas para clientes Regular, VIP y Mayorista.
 
 ### Pruebas de integración
 
@@ -84,4 +85,30 @@ Se ejecutaron **5 pruebas de integración**. Los criterios de aceptación y el c
 
 `run-tests.ps1` guarda los XML Cobertura en `TestResults/Unit/` y `TestResults/Integration/`. Si ReportGenerator está instalado, también genera `TestResults/CodeCoverage/index.html` y `Summary.txt`.
 
-En la ejecución del 3 de octubre de 2026, la cobertura combinada del código propio de `Pedidos.Api` fue **97 % de líneas (195 de 201)** y **84,3 % de ramas (27 de 32)**. Para calcularla se combinaron los reportes unitario y de integración y se excluyeron las clases generadas por OpenAPI y por el compilador; el porcentaje global sin filtrar es diferente.
+En la ejecución del 3 de octubre de 2026, la cobertura combinada del código propio de `Pedidos.Api` fue **97 % de líneas (195 de 201)** y **84,3 % de ramas (27 de 32)**. Para calcularla se combinaron los reportes unitario y de integración y se excluyó el código generado por OpenAPI y el compilador. El porcentaje global sin ese filtro es diferente.
+
+## Reflexión
+
+El TDD nos mostró que las pruebas pueden acompañar la construcción del proyecto desde el comienzo, y no solamente revisarlo al final.
+
+En la fase roja escribimos una prueba para una característica concreta y comprobamos que fallara por la razón esperada.
+
+En la fase verde agregamos el código mínimo para cumplir ese comportamiento y volvimos a ejecutar las pruebas.
+
+Después, en la refactorización, pudimos ordenar el código sin cambiar el resultado que las pruebas ya protegían.
+
+Una de las dificultades fue «pensar al revés»: definir primero qué debía ocurrir cuando todavía no existía la implementación.
+
+Esto nos resultó contraintuitivo porque teníamos el hábito de programar primero y probar después.
+
+También aprendimos que una prueba necesita un criterio de aceptación claro; de lo contrario, un número esperado puede parecer arbitrario.
+
+El límite de 500 para el descuento mayorista nos ayudó a entender por qué conviene probar exactamente el valor donde cambia la regla.
+
+Con xUnit organizamos los casos mediante `[Fact]` y usamos `[Theory]` con varios datos para comprobar una misma regla en diferentes situaciones.
+
+Sus `Assert` nos permitieron expresar de forma directa qué resultado esperábamos y detectar si un cambio rompía el comportamiento.
+
+Moq nos ayudó a aislar el servicio en las pruebas unitarias, mientras que las pruebas de integración comprobaron la API junto con SQL Server.
+
+Por último, el script de automatización hizo más fácil repetir las pruebas y revisar la cobertura después de cada cambio.
